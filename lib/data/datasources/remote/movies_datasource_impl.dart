@@ -1,13 +1,12 @@
-import 'package:flutter/cupertino.dart';
+import 'package:test_app/data/datasources/remote/movies_datasource.dart';
+import 'package:test_app/data/models/movies_model.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
-import 'package:test_app/models/movies_model.dart';
 
-class HomePageView extends ChangeNotifier{
-  List popularMovies = [];
+ class MoviesDataSourceImpl extends MoviesDataSource{
+  @override
+  Future<List<Movie>> getPopular() async {
 
-
-  Future<List> getMovies() async {
     var url = Uri.parse('https://api.themoviedb.org/3/movie/popular?api_'
         'key=f75c6d6b22d698a448dd77d0181f4caa&language=en-US&page=1');
 
@@ -19,13 +18,9 @@ class HomePageView extends ChangeNotifier{
 
       List<Movie> movies =
       moviesJson.map((element) => Movie.fromJson(element)).toList();
-        popularMovies.clear();
-        popularMovies.addAll(movies);
-        notifyListeners();
-
-      return popularMovies;
+      return movies;
     } else {
-      return List.empty();
+      throw Exception("Nimadir xatolik");
     }
   }
 

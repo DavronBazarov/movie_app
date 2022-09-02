@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:test_app/models/movies_model.dart';
-import 'package:test_app/viewmodel/home_view.dart';
+import 'package:test_app/presentation/provider/home_view.dart';
 
 import 'description.dart';
 
