@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 class Description extends StatelessWidget {
   String title;
   String image;
+  String imgUrl;
   String description;
-  Description(this.title, this.image, this.description, {Key? key}) : super(key: key);
-  String imgUrl = "https://image.tmdb.org/t/p/w500";
+  Description(this.title, this.image,this.imgUrl, this.description, {Key? key}) : super(key: key);
+  // String imgUrl = "https://image.tmdb.org/t/p/w500";
   @override
   Widget build(BuildContext context) {
     return Scaffold(body: CustomScrollView(
@@ -32,7 +33,7 @@ class Description extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 Image.network(
-                 " $imgUrl$image",
+                 "$image",
                   fit: BoxFit.cover,
                 ),
                 const DecoratedBox(

@@ -1,10 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert' as convert;
-import 'package:http/http.dart' as http;
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:test_app/presentation/provider/home_view.dart';
+import 'package:test_app/features/popular/presentation/bloc/popular_bloc.dart';
 
+import '../provider/home_view.dart';
 import 'description.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,36 +16,67 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String imgUrl = "https://image.tmdb.org/t/p/w500/";
 
+
+@override
+  void initState() {
+    super.initState();
+    context.read<PopularBloc>().add(GetPopularMoviesEvent());
+  }
   @override
   Widget build(BuildContext context) {
-    Provider.of<HomePageView>(context).getMovies();
-    return Scaffold(
-      backgroundColor: Color(0xffC8BCD1),
-      appBar: AppBar(
 
-        title: const Text("Movie  App", style: TextStyle(color: Colors.white),),
+    Provider.of<HomePageView>(context).getMovies();
+
+    return Scaffold(
+      backgroundColor: const Color(0xffC8BCD1),
+      appBar: AppBar(
+        title: const Text(
+          "Movie  App",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
-      body: Consumer<HomePageView>(builder: (context, data, child) {
-        if (data.popularMovies.isNotEmpty) {
-          return ListView.builder(
-              itemCount: data.popularMovies.length,
-              itemBuilder: (BuildContext context, int index) {
-                return buildItems(
-                  title: data.popularMovies[index].title ?? "...",
-                  image: data.popularMovies[index].posterPath,
-                  description: data.popularMovies[index].overview,
-                  time: data.popularMovies[index].releaseDate,
-                  language: data.popularMovies[index].originalLanguage,
-                );
-              });
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-      }),
+      body: BlocBuilder<PopularBloc, PopularState>(
+        builder: (context, state) {
+          if (state is PopularLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (state is PopularMoviesError) {
+            return Center(
+              child: Text(state.error),
+            );
+          }
+          if (state is PopularDone) {
+            return ListView.builder(
+                itemCount: state.movies?.length ?? 0,
+                itemBuilder: (BuildContext context, int index) {
+                  return buildItems(
+                    title: state.movies?[index].title ?? "...",
+                    image: state.movies?[index].posterPath,
+                    description: state.movies?[index].overview,
+                    time: state.movies?[index].releaseDate,
+                    language: state.movies?[index].originalLanguage,
+                  );
+                });
+          }
+          return Container();
+        },
+      ),
     );
   }
+
+  // return ListView.builder(
+  //     itemCount: data.popularMovies.length,
+  //     itemBuilder: (BuildContext context, int index) {
+  //       return buildItems(
+  //         title: data.popularMovies[index].title ?? "...",
+  //         image: data.popularMovies[index].posterPath,
+  //         description: data.popularMovies[index].overview,
+  //         time: data.popularMovies[index].releaseDate,
+  //         language: data.popularMovies[index].originalLanguage,
+  //       );
+  //     });
 
   Widget buildItems({String? title, image, description, time, language}) {
     return InkWell(
@@ -58,6 +88,7 @@ class _HomePageState extends State<HomePage> {
                   builder: (context) => Description(
                         title!,
                         image,
+                        imgUrl,
                         description,
                       )));
         });
@@ -68,7 +99,7 @@ class _HomePageState extends State<HomePage> {
           borderRadius: const BorderRadius.all(Radius.circular(10)),
           child: Container(
             padding: const EdgeInsets.only(left: 4, top: 4),
-            color: Color(0xff2D5368),
+            color: const Color(0xff2D5368),
             height: 200,
             child: Column(
               children: [
@@ -94,7 +125,9 @@ class _HomePageState extends State<HomePage> {
                           Text(
                             title!,
                             style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.w500, color: Colors.white),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white),
                           ),
                           const SizedBox(
                             height: 12,
@@ -105,7 +138,7 @@ class _HomePageState extends State<HomePage> {
                             overflow: TextOverflow.ellipsis,
                             softWrap: false,
                             style: const TextStyle(
-                             color: Colors.white,
+                                color: Colors.white,
                                 fontWeight: FontWeight.w400,
                                 fontSize: 14),
                           ),
@@ -115,7 +148,10 @@ class _HomePageState extends State<HomePage> {
                               const SizedBox(
                                 width: 0,
                               ),
-                              Text(time, style: TextStyle(color: Colors.white),),
+                              Text(
+                                time,
+                                style: TextStyle(color: Colors.white),
+                              ),
                               SizedBox(
                                 width: 5,
                               ),
@@ -131,14 +167,16 @@ class _HomePageState extends State<HomePage> {
                                 "Lang: ${language.toString().toUpperCase()}",
                                 style: TextStyle(
                                     fontWeight: FontWeight.w500,
-                                     color: Colors.white),
+                                    color: Colors.white),
                               ),
                               Row(
                                 children: [
                                   IconButton(
-                                    onPressed: () {},
-                                    icon: Icon(Icons.share, color: Colors.white,
-                                  )),
+                                      onPressed: () {},
+                                      icon: Icon(
+                                        Icons.share,
+                                        color: Colors.white,
+                                      )),
                                 ],
                               )
                             ],

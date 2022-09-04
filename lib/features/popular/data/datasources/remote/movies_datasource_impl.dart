@@ -1,9 +1,10 @@
-import 'package:test_app/data/datasources/remote/movies_datasource.dart';
-import 'package:test_app/data/models/movies_model.dart';
+
 import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
+ import '../../models/movies_model.dart';
+import 'movies_datasource.dart';
 
- class MoviesDataSourceImpl extends MoviesDataSource{
+class MoviesDataSourceImpl extends MoviesDataSource{
   @override
   Future<List<Movie>> getPopular() async {
 
