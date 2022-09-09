@@ -1,79 +1,67 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:test_app/features/popular/presentation/bloc/popular_bloc.dart';
+import 'package:test_app/features/now_playing/presentation/bloc/now_bloc.dart';
+import 'package:test_app/features/now_playing/presentation/provider/now_play_page_view.dart';
 
-import '../provider/home_view.dart';
-import 'description.dart';
-
-class PopularScreen extends StatefulWidget {
-  const PopularScreen({Key? key}) : super(key: key);
+class NowPlaying extends StatefulWidget {
+  const NowPlaying({Key? key}) : super(key: key);
 
   @override
-  State<PopularScreen> createState() => _PopularScreenState();
+  State<NowPlaying> createState() => _NowPlayingState();
 }
 
-class _PopularScreenState extends State<PopularScreen> {
+class _NowPlayingState extends State<NowPlaying> {
   String imgUrl = "https://image.tmdb.org/t/p/w500/";
 
-
-@override
+  @override
   void initState() {
     super.initState();
-    context.read<PopularBloc>().add(GetPopularMoviesEvent());
+    context.read<NowBloc>().add(GetNowPlayingEvent());
   }
+
   @override
   Widget build(BuildContext context) {
-    Provider.of<HomePageView>(context).getMovies();
+
+    Provider.of<NowPlayingPageView>(context).getMoviesNow();
 
     return Scaffold(
-      backgroundColor: const Color(0xffC8BCD1),
-
-      body: BlocBuilder<PopularBloc, PopularState>(
-        builder: (context, state) {
-          if (state is PopularLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          if (state is PopularMoviesError) {
-            return Center(
-              child: Text(state.error),
-            );
-          }
-          if (state is PopularDone) {
-            return ListView.builder(
-                itemCount: state.movies?.length ?? 0,
-                itemBuilder: (BuildContext context, int index) {
-                  return buildItems(
-                    title: state.movies?[index].title ?? "...",
-                    image: state.movies?[index].posterPath,
-                    description: state.movies?[index].overview,
-                    time: state.movies?[index].releaseDate,
-                    language: state.movies?[index].originalLanguage,
-                  );
-                });
-          }
-          return Container();
-        },
-      ),
+backgroundColor: Color(0xffC8BCD1),
+      body: BlocBuilder<NowBloc, NowState>(
+          builder: (context, state) {
+            if (state is NowPlayingLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            if (state is NowPlayingError) {
+              return Center(
+                child: Text(state.error),
+              );
+            }
+            if (state is NowPlayingNowDone){
+              return ListView.builder(
+                  itemCount: state.moviesNow?.length,
+                  itemBuilder: (BuildContext context, int index){
+                    return buildItems(
+                      title: state.moviesNow?[index].title ?? "...",
+                      image: state.moviesNow?[index].posterPath ?? "...",
+                      description: state.moviesNow?[index].overview ?? "...",
+                      time: state.moviesNow?[index].releaseDate ?? "...",
+                      language: state.moviesNow?[index].originalLanguage ?? "..."
+                    );
+              });
+            }
+            return Container();
+          }),
     );
   }
-
-
   Widget buildItems({String? title, image, description, time, language}) {
     return InkWell(
       onTap: () {
         setState(() {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => Description(
-                        title!,
-                        image,
-                        imgUrl,
-                        description,
-                      )));
+
         });
       },
       child: Padding(
@@ -176,4 +164,5 @@ class _PopularScreenState extends State<PopularScreen> {
       ),
     );
   }
+
 }
